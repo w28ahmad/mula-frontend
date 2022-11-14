@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SockJsClient from './SockJsClient';
 import { v4 as uuidv4 } from 'uuid';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const SOCKET_URL = "http://localhost:8080/ws-message"
 const CONN_RECV_TOPIC = "/topic/connection"
@@ -10,17 +10,18 @@ const CONN_SEND_TOPIC = "/app/connection"
 export default function Connect() {
 
     const url = new URL(window.location.href);
+    const uuid = uuidv4();
     const user = {
-        id : uuidv4(),
+        id : uuid,
         name: url.searchParams.get('name')
     }
 
     let clientRef = null;
+    const navigate = useNavigate();
 
-    const [redirect, setRedirect] = useState(false);
-    const [waitingPlayers, setWaitingPlayers] = useState([user]);
+    const [players, setPlayers] = useState([user]);
 
-    const onPlayersReceive = (players) => setWaitingPlayers(players)
+    const onPlayersReceive = (players) => setPlayers(players)
     
     const playerBroadcast = () => clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user))
     
@@ -28,16 +29,22 @@ export default function Connect() {
     
     const onDisconnect = () => console.log("Disconnected")
 
+    const startGame = () => {
+        navigate("/game", {
+            state: {
+                user,
+                players
+            }
+        });
+    };
+
     useEffect(()=>{
-        if(waitingPlayers.length > 4) setRedirect(true)
+        if(players.length >= 2) startGame()
     })
 
 
     return (
         <div className="tableContainer">
-            { 
-                redirect ? (<Navigate push to={{pathname: `/game`,}}/>) : null 
-            }
             <table className='table table-dark table-hover'>
                 <thead>
                     <tr>
@@ -45,7 +52,7 @@ export default function Connect() {
                     </tr>
                 </thead>
                 <tbody>
-                    {waitingPlayers.map(player => 
+                    {players.map(player => 
                         <tr key={player.id}>
                             <td style={{"padding":" 20px 80px"}}>{ player.name }</td>
                         </tr>
