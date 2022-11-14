@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SockJsClient from './SockJsClient';
 import { v4 as uuidv4 } from 'uuid';
 import { Navigate } from 'react-router-dom';
@@ -7,97 +7,62 @@ const SOCKET_URL = "http://localhost:8080/ws-message"
 const CONN_RECV_TOPIC = "/topic/connection"
 const CONN_SEND_TOPIC = "/app/connection"
 
+export default function Connect() {
 
-class Connect extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.uid = uuidv4()
-        const url = new URL(window.location.href)
-        this.name = url.searchParams.get('name')
-
-        this.state = {
-            redirect: false,
-
-            waitingPlayers: {
-                [this.uid]: this.name
-            },
-
-            names: [
-                [this.name, this.uid]
-            ]
-        }
+    const url = new URL(window.location.href);
+    const user = {
+        id : uuidv4(),
+        name: url.searchParams.get('name')
     }
 
-    onPlayersReceive = (players) => {
-        players.forEach(player => {
-            if(this.state.waitingPlayers[player.id]===undefined) {
-                this.setState((state)=>{
-                    state.waitingPlayers[player.id] = player.name
-                    state.names.push([player.name, player.id])
-                    if(state.names.length > 4) state.redirect=true
-                    return state
-                })
-            }
-        });
-    }
+    let clientRef = null;
 
-    playerBroadcast = () => {
-        const user = {
-            id : this.uid,
-            name: this.name
-        }
-        this.clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user))
-    }
+    const [redirect, setRedirect] = useState(false);
+    const [waitingPlayers, setWaitingPlayers] = useState([user]);
 
-    onConnection = () => {
-        console.log("Connection")
-        this.playerBroadcast()
-    }
-
-    onError = () => {
-        console.log("Error")
-    }
-
-    onDisconnect = () => {
-        console.log("Disconnected")
-    }
-
+    const onPlayersReceive = (players) => setWaitingPlayers(players)
     
-    render() {
-        return (
-            <div className="tableContainer">
-                 { this.state.redirect ? (<Navigate push to="/game"/>) : null }
-                <table className='table table-dark table-hover'>
-                    <thead>
-                        <tr>
-                            <th scope='col'>Players</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.names.map(player => {
-                        return (
-                            <tr key={player[1]}>
-                            <td style={{"padding":" 20px 80px"}}>{ player[0] }</td>
-                            </tr>
-                        );
-                    })}                    
-                    </tbody>
-                    <tfoot/>
-                </table>
+    const playerBroadcast = () => clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user))
+    
+    const onConnection = () => playerBroadcast()
+    
+    const onDisconnect = () => console.log("Disconnected")
 
-                <SockJsClient
-                    url={SOCKET_URL}
-                    topics={[CONN_RECV_TOPIC]}
-                    onMessage={this.onPlayersReceive} 
-                    onConnect={this.onConnection}
-                    onDisconnect={this.onDisconnect}
-                    ref={ (client) => { this.clientRef = client }} 
-                />
-            </div>
-        )
-    }
+    useEffect(()=>{
+        if(waitingPlayers.length > 4) setRedirect(true)
+    })
+
+
+    return (
+        <div className="tableContainer">
+            { 
+                redirect ? (<Navigate push to={{pathname: `/game`,}}/>) : null 
+            }
+            <table className='table table-dark table-hover'>
+                <thead>
+                    <tr>
+                        <th scope='col'>Players</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {waitingPlayers.map(player => 
+                        <tr key={player.id}>
+                            <td style={{"padding":" 20px 80px"}}>{ player.name }</td>
+                        </tr>
+                    )}                    
+                </tbody>
+                <tfoot/>
+            </table>
+
+            <SockJsClient
+                url={SOCKET_URL}
+                topics={[CONN_RECV_TOPIC]}
+                onMessage={onPlayersReceive} 
+                onConnect={onConnection}
+                onDisconnect={onDisconnect}
+                ref={ (client) => { clientRef = client }} 
+            />
+        </div>
+    )
 
 }
-
-export default Connect
