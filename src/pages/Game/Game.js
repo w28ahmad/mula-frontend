@@ -3,23 +3,26 @@ import ProgressBar from '../../components/ProgressBar/ProgressBar.component';
 import './Game.css'
 import { useLocation } from "react-router-dom";
 
-
 import SockJsClient from '../Connect/SockJsClient';
 import Markdown from '../../components/Markdown.component';
 
-const SOCKET_URL = "http://localhost:8080/ws-message"
-const CONN_RECV_TOPIC = "/topic/game"
-const SEND_QUESTION_TOPIC = "/app/game"
+const SOCKET_URL = "http://localhost:8080/ws-message";
+const CONN_RECV_TOPIC = "/topic/game";
+const GAME_TOPIC = "/app/game";
+const QUESTION_TOPIC = "/app/question";
 
-const PROGRESS_COLORS = ["#6a1b9a", "#00695c", "#ef6c00", "#c41e3a", "#0096ff"]
+const PROGRESS_COLORS = ["#6a1b9a", "#00695c", "#ef6c00", "#c41e3a", "#0096ff"];
 
 export default function Game() {
     let clientRef = null;
     const location = useLocation();
     const user = location.state.user;
 
-    const [questionSnippet, setQuestionSnippet] = useState('');
-    const [options, setOptions] = useState({});
+    const [questionData, setQuestionData] = useState({
+        questionSnippet: '',
+        options: {},
+        id: null
+    })
 
     let playersData = [];
 
@@ -33,22 +36,40 @@ export default function Game() {
     }
     const [progressState, setProgressState] = useState(playersData);
 
-
     const onConnect = () => queryQuestions();
-    const queryQuestions = () => clientRef.sendMessage(SEND_QUESTION_TOPIC, JSON.stringify());
 
-    const onQuestionReceive = (questionData) => {
-        setQuestionSnippet(questionData.questionSnippet);
-        setOptions(questionData.options);
+    const queryQuestions = () => clientRef.sendMessage(GAME_TOPIC, JSON.stringify());
+
+    const onQuestionReceive = (data) => {
+        switch(data.type) {
+            case "QUESTION_SET":
+                setQuestionData(data.questions[0])
+                break;
+            case "USER_SOLUTION":
+                updateProgressBar(data.userId, data.isCorrect)
+                break;
+            default:
+              // TODO
+        }
     }
 
-    const onSolution = (e) => {
-        for(let playerData of playersData)
-            if(playerData.id === user.id) playerData.completed = 100;
-        setProgressState(playersData);
+    const updateProgressBar = (userId, isCorrect) => {
+        if (isCorrect) 
+            for(let playerData of playersData)
+                if(playerData.id === userId) playerData.completed = 100;
+            setProgressState(playersData)
     }
+   
+   const onSolution = (e) => {
+       const questionSolution = {
+           userId: user.id,
+           questionId: questionData.id,
+           solution: e.target.value
+       }
+       clientRef.sendMessage(QUESTION_TOPIC, JSON.stringify(questionSolution))
+   }
 
-    const onDisconnect = () => console.log("Disconnted");
+   const onDisconnect = () => console.log("Disconnted");
 
     return (
         <div style={{"color":"white", "width":"30%"}}>
@@ -59,18 +80,18 @@ export default function Game() {
                 ))}
             </div>
 
-            <Markdown>{questionSnippet}</Markdown>
+            <Markdown>{questionData.questionSnippet}</Markdown>
             {
-                Object.keys(options).map((keyName, _) => {
+                Object.keys(questionData.options).map((keyName, _) => {
                     if (keyName.startsWith("option")){
                         return (
                             <button 
                                 className={'button mt-20'} 
                                 type="submit" 
                                 key={keyName} 
-                                value={options[keyName]}
+                                value={questionData.options[keyName]}
                                 onClick={onSolution}>
-                                    {options[keyName]}
+                                    {questionData.options[keyName]}
                             </button>
                         )
                     }
