@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import SockJsClient from './SockJsClient';
-import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 
 const SOCKET_URL = "http://localhost:8080/ws-message"
 const CONN_RECV_TOPIC = "/topic/connection"
 const CONN_SEND_TOPIC = "/app/connection"
 
-export default function Connect() {
+export default function Connect(props) {
 
     const url = new URL(window.location.href);
-    const uuid = uuidv4();
-    const user = {
-        id : uuid,
-        name: url.searchParams.get('name')
-    }
 
     let clientRef = null;
     const navigate = useNavigate();
 
+    const [user, setUser] = useState({
+        id: null,
+        name: url.searchParams.get('name')
+    })
     const [players, setPlayers] = useState([user]);
 
-    const onPlayersReceive = (players) => setPlayers(players)
+    const onPlayersReceive = (players) => {
+        setPlayers(players)
+        if(user.id == null) setUser(players.at(-1))
+    }
     
     const playerBroadcast = () => clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user))
     
@@ -71,5 +72,4 @@ export default function Connect() {
             />
         </div>
     )
-
 }

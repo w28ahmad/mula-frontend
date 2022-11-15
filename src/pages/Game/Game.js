@@ -17,21 +17,22 @@ export default function Game() {
     let clientRef = null;
     const location = useLocation();
     const user = location.state.user;
-    console.log(location.state)
 
-    let playersData = [] 
-    
+    const [questionSnippet, setQuestionSnippet] = useState('');
+    const [options, setOptions] = useState({});
+
+    let playersData = [];
+
     for(const [index, player] of location.state.players.entries()){
         playersData.push({
             id: player.id,
             name: player.name,
             bgcolor: PROGRESS_COLORS[index],
             completed: 0
-        })
+        });
     }
+    const [progressState, setProgressState] = useState(playersData);
 
-    const [questionSnippet, setQuestionSnippet] = useState('');
-    const [options, setOptions] = useState({});
 
     const onConnect = () => queryQuestions();
     const queryQuestions = () => clientRef.sendMessage(SEND_QUESTION_TOPIC, JSON.stringify());
@@ -42,22 +43,18 @@ export default function Game() {
     }
 
     const onSolution = (e) => {
-        for(let playerData of playersData){
-            if(playerData.id === user.id){
-                playerData.completed = 100
-            }
-        }
+        for(let playerData of playersData)
+            if(playerData.id === user.id) playerData.completed = 100;
+        setProgressState(playersData);
     }
 
     const onDisconnect = () => console.log("Disconnted");
-
-
 
     return (
         <div style={{"color":"white", "width":"30%"}}>
             {/* TODO: move the progress bars to a seperate component  */}
             <div className={'progressGroup'}>
-                {playersData.map((item, idx) => (
+                {progressState.map((item, idx) => (
                     <ProgressBar key={idx} bgcolor={item.bgcolor} completed={item.completed} name={item.name} />
                 ))}
             </div>
