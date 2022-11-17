@@ -18,11 +18,12 @@ export default function Game() {
     const location = useLocation();
     const user = location.state.user;
 
-    const [questionData, setQuestionData] = useState({
+    const [score, setScore] = useState(0)
+    const [questionData, setQuestionData] = useState([{
         questionSnippet: '',
         options: {},
         id: null
-    })
+    }])
 
     let playersData = [];
 
@@ -43,10 +44,11 @@ export default function Game() {
     const onQuestionReceive = (data) => {
         switch(data.type) {
             case "QUESTION_SET":
-                setQuestionData(data.questions[0])
+                setQuestionData(data.questions)
                 break;
             case "USER_SOLUTION":
                 updateProgressBar(data.userId, data.isCorrect)
+
                 break;
             default:
               // TODO
@@ -54,16 +56,20 @@ export default function Game() {
     }
 
     const updateProgressBar = (userId, isCorrect) => {
-        if (isCorrect) 
+        if (isCorrect) {
             for(let playerData of playersData)
-                if(playerData.id === userId) playerData.completed = 100;
+                if(playerData.id === userId) {
+                    playerData.completed = 100 * (score+1)/questionData.length;
+                    setScore(score + 1)
+                }
             setProgressState(playersData)
+        }
     }
    
    const onSolution = (e) => {
        const questionSolution = {
            userId: user.id,
-           questionId: questionData.id,
+           questionId: questionData[score].id,
            solution: e.target.value
        }
        clientRef.sendMessage(QUESTION_TOPIC, JSON.stringify(questionSolution))
@@ -79,19 +85,20 @@ export default function Game() {
                     <ProgressBar key={idx} bgcolor={item.bgcolor} completed={item.completed} name={item.name} />
                 ))}
             </div>
-
-            <Markdown>{questionData.questionSnippet}</Markdown>
+            <Markdown>{questionData[score].questionSnippet}</Markdown>
             {
-                Object.keys(questionData.options).map((keyName, _) => {
+                Object.keys(questionData[score].options).map((keyName, _) => {
                     if (keyName.startsWith("option")){
                         return (
                             <button 
                                 className={'button mt-20'} 
                                 type="submit" 
                                 key={keyName} 
-                                value={questionData.options[keyName]}
+                                value={questionData[score].options[keyName]}
                                 onClick={onSolution}>
-                                    {questionData.options[keyName]}
+                                    <Markdown>
+                                        {questionData[score].options[keyName]}
+                                    </Markdown>
                             </button>
                         )
                     }
