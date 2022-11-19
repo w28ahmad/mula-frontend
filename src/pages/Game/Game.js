@@ -1,45 +1,34 @@
-import React, { useState } from 'react';
-import ProgressBar from '../../components/ProgressBar/ProgressBar.component';
-import './Game.css'
+import React, { useState, useRef } from 'react';
 import { useLocation } from "react-router-dom";
 
-import SockJsClient from '../Connect/SockJsClient';
-import Markdown from '../../components/Markdown.component';
+import ProgressGroup from '../../components/ProgressGroup/ProgressGroup.component';
+import OptionsGroup from '../../components/OptionsGroup/OptionsGroup.component'
+import SockJsClient from '../../services/SockJsClient';
+import Markdown from '../../components/Markdown/Markdown.component';
 
-const SOCKET_URL = "http://localhost:8080/ws-message";
-const CONN_RECV_TOPIC = "/topic/game";
-const GAME_TOPIC = "/app/game";
-const QUESTION_TOPIC = "/app/question";
+import { SOCKET_URL, GAME_RECV_TOPIC, GAME_SEND_TOPIC, SOLUTION_SEND_TOPIC } from '../../data/SocketData';
 
-const PROGRESS_COLORS = ["#6a1b9a", "#00695c", "#ef6c00", "#c41e3a", "#0096ff"];
+import './Game.css'
 
 export default function Game() {
     let clientRef = null;
     const location = useLocation();
-    const user = location.state.user;
+    const activeUser = location.state.user;
+    const players = location.state.players;
 
     const [score, setScore] = useState(0)
     const [questionData, setQuestionData] = useState([{
         questionSnippet: '',
         options: {},
         id: null
-    }])
+    }]);
 
-    let playersData = [];
-
-    for(const [index, player] of location.state.players.entries()){
-        playersData.push({
-            id: player.id,
-            name: player.name,
-            bgcolor: PROGRESS_COLORS[index],
-            completed: 0
-        });
-    }
-    const [progressState, setProgressState] = useState(playersData);
+    const updateProgressBar = useRef(null)
+    let step = 100/questionData.length;
 
     const onConnect = () => queryQuestions();
 
-    const queryQuestions = () => clientRef.sendMessage(GAME_TOPIC, JSON.stringify());
+    const queryQuestions = () => clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify());
 
     const onQuestionReceive = (data) => {
         switch(data.type) {
@@ -47,67 +36,36 @@ export default function Game() {
                 setQuestionData(data.questions)
                 break;
             case "USER_SOLUTION":
-                updateProgressBar(data.userId, data.isCorrect)
-
+                if(data.isCorrect) updateScores(data.userId)
                 break;
             default:
-              // TODO
         }
     }
 
-    const updateProgressBar = (userId, isCorrect) => {
-        if (isCorrect) {
-            for(let playerData of playersData)
-                if(playerData.id === userId) {
-                    playerData.completed = 100 * (score+1)/questionData.length;
-                    setScore(score + 1)
-                }
-            setProgressState(playersData)
-        }
+    const updateScores = (userId) => {
+        if(userId === activeUser.id) setScore(score+1)
+        updateProgressBar.current(userId)
     }
    
    const onSolution = (e) => {
        const questionSolution = {
-           userId: user.id,
+           userId: activeUser.id,
            questionId: questionData[score].id,
            solution: e.target.value
        }
-       clientRef.sendMessage(QUESTION_TOPIC, JSON.stringify(questionSolution))
+       clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(questionSolution))
    }
 
-   const onDisconnect = () => console.log("Disconnted");
+   const onDisconnect = () => {}
 
     return (
         <div style={{"color":"white", "width":"30%"}}>
-            {/* TODO: move the progress bars to a seperate component  */}
-            <div className={'progressGroup'}>
-                {progressState.map((item, idx) => (
-                    <ProgressBar key={idx} bgcolor={item.bgcolor} completed={item.completed} name={item.name} />
-                ))}
-            </div>
+            <ProgressGroup players={players} updateProgressBar={updateProgressBar} step={step}/>
             <Markdown>{questionData[score].questionSnippet}</Markdown>
-            {
-                Object.keys(questionData[score].options).map((keyName, _) => {
-                    if (keyName.startsWith("option")){
-                        return (
-                            <button 
-                                className={'button mt-20'} 
-                                type="submit" 
-                                key={keyName} 
-                                value={questionData[score].options[keyName]}
-                                onClick={onSolution}>
-                                    <Markdown>
-                                        {questionData[score].options[keyName]}
-                                    </Markdown>
-                            </button>
-                        )
-                    }
-                    return null
-                })
-            }
+            <OptionsGroup options={questionData[score].options} onSolution={onSolution}/>
             <SockJsClient
                 url={SOCKET_URL}
-                topics={[CONN_RECV_TOPIC]}
+                topics={[GAME_RECV_TOPIC]}
                 onMessage={onQuestionReceive} 
                 onConnect={onConnect}
                 onDisconnect={onDisconnect}

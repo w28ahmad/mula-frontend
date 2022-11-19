@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import SockJsClient from './SockJsClient';
 import { useNavigate } from 'react-router-dom';
 
-const SOCKET_URL = "http://localhost:8080/ws-message"
-const CONN_RECV_TOPIC = "/topic/connection"
-const CONN_SEND_TOPIC = "/app/connection"
+import SockJsClient from '../../services/SockJsClient';
+import PlayersTable from '../../components/PlayersTable/PlayersTable.component';
+import { SOCKET_URL, CONN_RECV_TOPIC, CONN_SEND_TOPIC } from '../../data/SocketData';
 
-export default function Connect(props) {
+export default function Connect() {
 
     const url = new URL(window.location.href);
 
@@ -28,7 +27,7 @@ export default function Connect(props) {
     
     const onConnection = () => playerBroadcast()
     
-    const onDisconnect = () => console.log("Disconnected")
+    const onDisconnect = () => {}
 
     const startGame = () => {
         navigate("/game", {
@@ -46,22 +45,7 @@ export default function Connect(props) {
 
     return (
         <div className="tableContainer">
-            <table className='table table-dark table-hover'>
-                <thead>
-                    <tr>
-                        <th scope='col'>Players</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {players.map(player => 
-                        <tr key={player.id}>
-                            <td style={{"padding":" 20px 80px"}}>{ player.name }</td>
-                        </tr>
-                    )}                    
-                </tbody>
-                <tfoot/>
-            </table>
-
+            <PlayersTable players={players}/>
             <SockJsClient
                 url={SOCKET_URL}
                 topics={[CONN_RECV_TOPIC]}
