@@ -1,5 +1,5 @@
 const ProgressBar = (props) => {
-  const { bgcolor, completed, name } = props;
+  const { bgcolor, progress, name, position } = props
 
   const containerStyles = {
     height: 20,
@@ -11,7 +11,7 @@ const ProgressBar = (props) => {
 
   const fillerStyles = {
     height: '100%',
-    width: `${completed}%`,
+    width: `${progress}%`,
     backgroundColor: bgcolor,
     borderRadius: 'inherit',
     textAlign: 'right'
@@ -20,16 +20,20 @@ const ProgressBar = (props) => {
   const labelStyles = {
     padding: 5,
     color: 'white',
-    // fontWeight: 'bold'
+  }
+
+  const positionStyle = {
+    fontWeight: 'bold'
   }
 
   return (
     <div style={containerStyles}>
       <div style={fillerStyles}>
+        <span style={positionStyle}> {`${position ? position+"st" : ""}`} </span>
         <span style={labelStyles}>{`${name}`}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProgressBar;
+export default ProgressBar

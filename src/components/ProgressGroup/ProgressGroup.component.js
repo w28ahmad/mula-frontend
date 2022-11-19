@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 
-import ProgressBar from "../ProgressBar/ProgressBar.component";
-import {PROGRESS_COLORS} from "../../data/ProgressBarData";
+import ProgressBar from "../ProgressBar/ProgressBar.component"
+import {PROGRESS_COLORS} from "../../data/ProgressBarData"
 
 import './ProgressGroup.component.css'
 
 export default function ProgressGroup(props) {
 
+    const [position, setPosition] = useState(1)
     const [progressState, setProgressState] = useState(() => {
         let playerData = []
         for(const [index, player] of props.players.entries()) {
@@ -14,11 +15,12 @@ export default function ProgressGroup(props) {
                 id: player.id,
                 name: player.name,
                 bgcolor: PROGRESS_COLORS[index],
-                completed: 0
-            });
+                progress: 0,
+                position: null,
+            })
         }
-        return playerData;
-    });
+        return playerData
+    })
 
     useEffect(() => {
         props.updateProgressBar.current = updateProgressBar
@@ -26,17 +28,22 @@ export default function ProgressGroup(props) {
 
     const updateProgressBar = (userId) => {
         setProgressState(() => {
-            for(let i=0; i < progressState.length; i++)
+            for(let i=0; i < progressState.length; i++) {
                 if(progressState[i].id === userId)
-                    progressState[i].completed += props.step
+                    progressState[i].progress += props.step
+                if(progressState[i].progress >= 100) {
+                    progressState[i].position = position
+                    setPosition(position+1)
+                }
+            }
             return [...progressState]
-        });
+        })
     }
 
     return (
         <div className={'progressGroup'}>
             {progressState.map((player, idx) => (
-                <ProgressBar key={idx} bgcolor={player.bgcolor} completed={player.completed} name={player.name} />
+                <ProgressBar key={idx} bgcolor={player.bgcolor} progress={player.progress} name={player.name} position={player.position} />
             ))}
         </div>
     )
