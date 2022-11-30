@@ -6,7 +6,8 @@ import OptionsGroup from '../../components/OptionsGroup/OptionsGroup.component'
 import SockJsClient from '../../services/SockJsClient'
 import Markdown from '../../components/Markdown/Markdown.component'
 
-import { SOCKET_URL, GAME_RECV_TOPIC, GAME_SEND_TOPIC, SOLUTION_SEND_TOPIC } from '../../data/SocketData'
+import { SOCKET_URL, GAME_RECV_TOPIC, GAME_SEND_TOPIC, SOLUTION_SEND_TOPIC, 
+        QUESTION_SET, USER_SOLUTION } from '../../data/SocketData'
 
 import './Game.css'
 
@@ -33,13 +34,13 @@ export default function Game() {
 
     const onQuestionReceive = (data) => {
         switch(data.type) {
-            case "QUESTION_SET":
+            case QUESTION_SET:
                 setQuestionData(data.questions)
                 break
-            case "USER_SOLUTION":
+            case USER_SOLUTION:
                 if(data.isCorrect) updateScores(data.userId)
                 break
-            default:
+            default: break
         }
     }
 
