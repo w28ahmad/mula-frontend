@@ -29,11 +29,12 @@ export default function ProgressGroup(props) {
     const updateProgressBar = (userId) => {
         setProgressState(() => {
             for(let i=0; i < progressState.length; i++) {
-                if(progressState[i].id === userId)
+                if(progressState[i].id === userId){
                     progressState[i].progress += props.step
-                if(progressState[i].progress >= 100) {
-                    progressState[i].position = position
-                    setPosition(position+1)
+                    if(progressState[i].progress >= 100) {
+                        progressState[i].position = position
+                        setPosition(position+1)
+                    }
                 }
             }
             return [...progressState]

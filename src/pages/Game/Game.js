@@ -19,23 +19,23 @@ export default function Game() {
 
     const [isFinished, setIsFinished] = useState(false)
     const [score, setScore] = useState(0)
-    const [questionData, setQuestionData] = useState([{
+    const [questions, setQuestions] = useState([{
         questionSnippet: '',
         options: {},
         id: null
     }])
 
     const updateProgressBar = useRef(null)
-    let step = 100/questionData.length
+    let step = 100/questions.length
 
-    const onConnect = () => queryQuestions()
+    const onConnect = () => getQuestions()
 
-    const queryQuestions = () => clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify())
+    const getQuestions = () => clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify())
 
     const onQuestionReceive = (data) => {
         switch(data.type) {
             case QUESTION_SET:
-                setQuestionData(data.questions)
+                setQuestions(data.questions)
                 break
             case USER_SOLUTION:
                 if(data.isCorrect) updateScores(data.userId)
@@ -45,17 +45,22 @@ export default function Game() {
     }
 
     const updateScores = (userId) => {
-        if(score+1 === questionData.length) setIsFinished(true)
-        else if(userId === activeUser.id) setScore(score+1)
+        if(userId === activeUser.id) {
+            setScore(score+1)
+            if(score+1 === questions.length) setIsFinished(true)
+        }
         updateProgressBar.current(userId)
     }
    
+    // TODO: Fix the score issue
    const onSolution = (e) => {
        const questionSolution = {
            userId: activeUser.id,
-           questionId: questionData[score].id,
-           solution: e.target.value
+           questionId: questions[score].id,
+           solution: e.target.innerText
        }
+       console.log(e)
+       console.log(questionSolution)
        clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(questionSolution))
    }
 
@@ -73,8 +78,8 @@ export default function Game() {
                 isFinished ?
                 null : // TODO: back to home page
                 <div>
-                    <Markdown>{questionData[score].questionSnippet}</Markdown>
-                    <OptionsGroup options={questionData[score].options} onSolution={onSolution}/>
+                    <Markdown>{questions[score].questionSnippet}</Markdown>
+                    <OptionsGroup options={questions[score].options} onSolution={onSolution}/>
                 </div>
             }
 

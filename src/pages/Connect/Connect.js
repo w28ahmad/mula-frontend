@@ -34,10 +34,9 @@ export default function Connect() {
     }
 
     const onPlayersConnect = (data) => {
-        // console.log(players)
-        setSessionId(data.id)
+        setSessionId(data.sessionId)
         setPlayers(data.users)
-        if(user.id == null) setUser(data.users.at(-1))
+        if(user.id == null) setUser(data.users.at(0))
     }
 
     const onPlayersDisconnect = (data) => {
@@ -46,13 +45,15 @@ export default function Connect() {
     
     const playerBroadcast = () => clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user))
     
-    const onConnection = () => playerBroadcast()
+    const onConnection = () => {
+        playerBroadcast()
+    }
     
-    const onDisconnect = () => removePlayer()
+    const onDisconnect = () => {}
 
     const removePlayer = () => {
         let data = {
-            id: sessionId,
+            sessionId: sessionId,
             users: [
                 user,
             ]
@@ -61,6 +62,7 @@ export default function Connect() {
     }
 
     const startGame = () => {
+        console.log(user)
         navigate("/game", {
             state: {
                 user,
@@ -70,8 +72,8 @@ export default function Connect() {
     }
 
     useEffect(()=>{
-        // TODO: This 2 should be set by the BE
         if(players.length >= 2) startGame()
+        window.onbeforeunload = () => removePlayer()
     })
 
 
