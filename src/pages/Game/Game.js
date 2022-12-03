@@ -7,7 +7,7 @@ import SockJsClient from '../../services/SockJsClient'
 import Markdown from '../../components/Markdown/Markdown.component'
 
 import { SOCKET_URL, GAME_RECV_TOPIC, GAME_SEND_TOPIC, SOLUTION_SEND_TOPIC, 
-        QUESTION_SET, USER_SOLUTION } from '../../data/SocketData'
+        QUESTION_SET, USER_SOLUTION, DISCONN_SEND_TOPIC } from '../../data/SocketData'
 
 import './Game.css'
 
@@ -16,6 +16,7 @@ export default function Game() {
     const location = useLocation()
     const activeUser = location.state.user
     const players = location.state.players
+    const sessionId = location.state.sessionId
 
     const [isFinished, setIsFinished] = useState(false)
     const [score, setScore] = useState(0)
@@ -47,9 +48,22 @@ export default function Game() {
     const updateScores = (userId) => {
         if(userId === activeUser.id) {
             setScore(score+1)
-            if(score+1 === questions.length) setIsFinished(true)
+            if(score+1 === questions.length) {
+                setIsFinished(true)
+                removePlayer(activeUser)
+            }
         }
         updateProgressBar.current(userId)
+    }
+
+    const removePlayer = (activeUser) => {
+        let data = {
+            sessionId: sessionId,
+            users: [
+                activeUser,
+            ]
+        }
+        clientRef.sendMessage(DISCONN_SEND_TOPIC, JSON.stringify(data))
     }
    
     // TODO: Fix the score issue

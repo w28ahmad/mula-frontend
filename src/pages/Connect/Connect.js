@@ -62,11 +62,11 @@ export default function Connect() {
     }
 
     const startGame = () => {
-        console.log(user)
         navigate("/game", {
             state: {
                 user,
-                players
+                players,
+                sessionId,
             }
         })
     }
