@@ -31,7 +31,9 @@ export default function Game() {
 
     const onConnect = () => getQuestions()
 
-    const getQuestions = () => clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify())
+    const getQuestions = () => clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify({
+        sessionId
+    }))
 
     const onQuestionReceive = (data) => {
         switch(data.type) {
