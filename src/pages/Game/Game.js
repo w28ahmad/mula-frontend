@@ -75,38 +75,38 @@ export default function Game() {
            questionId: questions[score].id,
            solution: e.target.innerText
        }
-       console.log(e)
-       console.log(questionSolution)
        clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(questionSolution))
    }
 
    const onDisconnect = () => {}
 
     return (
-        <div style={{"color":"white", "width":"30%"}}>
-            {
-                isFinished ? <h1>FINISHED</h1> : null
-            }
+        <div className="outerContainer">
+            <div style={{"color":"white", "width":"30%"}}>
+                {
+                    isFinished ? <h1>FINISHED</h1> : null
+                }
 
-            <ProgressGroup players={players} updateProgressBar={updateProgressBar} step={step}/>
-            
-            {
-                isFinished ?
-                null : // TODO: back to home page
-                <div>
-                    <Markdown>{questions[score].questionSnippet}</Markdown>
-                    <OptionsGroup options={questions[score].options} onSolution={onSolution}/>
-                </div>
-            }
+                <ProgressGroup players={players} updateProgressBar={updateProgressBar} step={step}/>
+                
+                {
+                    isFinished ?
+                    null : // TODO: back to home page
+                    <div>
+                        <Markdown>{questions[score].questionSnippet}</Markdown>
+                        <OptionsGroup options={questions[score].options} onSolution={onSolution}/>
+                    </div>
+                }
 
-            <SockJsClient
-                url={SOCKET_URL}
-                topics={[GAME_RECV_TOPIC]}
-                onMessage={onQuestionReceive} 
-                onConnect={onConnect}
-                onDisconnect={onDisconnect}
-                ref={ (client) => { clientRef = client }} 
-            />
+                <SockJsClient
+                    url={SOCKET_URL}
+                    topics={[GAME_RECV_TOPIC]}
+                    onMessage={onQuestionReceive} 
+                    onConnect={onConnect}
+                    onDisconnect={onDisconnect}
+                    ref={ (client) => { clientRef = client }} 
+                />
+            </div>
         </div>
     )
 }

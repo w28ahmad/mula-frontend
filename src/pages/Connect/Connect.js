@@ -78,16 +78,18 @@ export default function Connect() {
 
 
     return (
-        <div className="tableContainer">
-            <PlayersTable players={players}/>
-            <SockJsClient
-                url={SOCKET_URL}
-                topics={[CONN_RECV_TOPIC]}
-                onMessage={onMessage} 
-                onConnect={onConnection}
-                onDisconnect={onDisconnect}
-                ref={ (client) => { clientRef = client }} 
-            />
+        <div className="outerContainer">
+            <div className="tableContainer">
+                <PlayersTable players={players}/>
+                <SockJsClient
+                    url={SOCKET_URL}
+                    topics={[CONN_RECV_TOPIC]}
+                    onMessage={onMessage} 
+                    onConnect={onConnection}
+                    onDisconnect={onDisconnect}
+                    ref={ (client) => { clientRef = client }} 
+                />
+            </div>
         </div>
     )
 }

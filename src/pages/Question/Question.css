@@ -1,0 +1,22 @@
+.sidebar {
+    width: 200px;
+    height: 100%;
+    background-color: #ccc;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    padding: 10px;
+    border-bottom: 1px solid #999;
+}
+
+.main {
+    width: calc(100% - 200px);
+    height: 100%;
+    margin-left: 200px;
+    background-color: #fff;
+}

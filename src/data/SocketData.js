@@ -1,5 +1,7 @@
 
-export const SOCKET_URL = "http://localhost:8080/ws-message";
+export const HOST = "http://localhost:8080"
+
+export const SOCKET_URL = HOST+"/ws-message";
 
 export const CONN_RECV_TOPIC = "/topic/connect"
 export const CONN_SEND_TOPIC = "/app/connect"
