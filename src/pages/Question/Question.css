@@ -1,12 +1,13 @@
 .sidebar {
     width: 200px;
-    height: 100%;
     background-color: #ccc;
+    display: flex;
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
+    width: 100%;
 }
 
 .sidebar li {

@@ -3,23 +3,62 @@ import Markdown from '../../components/Markdown/Markdown.component'
 
 import './Question.css'
 
+const dataTemplate = {
+    questionData: {
+        question: "''",
+        optionA: "''",
+        optionB: "''",
+        optionC: "''",
+        optionD: "''",
+        optionE: "''",
+        diagram: "null",
+    },
+    solutionData: {
+        solution: "''",
+        explanation: "''",
+        diagram: "null",
+    },
+    details: {
+        grade: 0,
+        partType: "''",
+        partNumber: 0,
+        partSize: 0,
+        subject: "''",
+        topic: "''",
+    },
+    hints: {
+        hintOne: "''",
+        hintTwo: "''",
+        hintThree: "''",
+        hintFour: "''",
+    },
+}
+
 const Question = () => {
 
     const [count, setCount] = useState(null)
     const [currIdx, setCurrIdx] = useState(null)
     const [data, setData] = useState(null)
+    const [menuItems, setMenuItems] = useState([])
 
 
     useEffect(() => {
       fetch('/questionCount')
         .then(response => response.json())
-        .then(data => setCount(data));
+        .then(data => {
+            setCount(data);
+            const menuItems = [];
+            for (let i = 1; i <= data; i++) {
+              menuItems.push(i);
+            }
+            setMenuItems(menuItems);
+        });
     }, []);
 
-    const menuItems = [];
-    for (let i = 1; i <= count; i++) {
-        menuItems.push(i);
-    }
+    // const menuItems = [];
+    // for (let i = 1; i <= count; i++) {
+    //     menuItems.push(i);
+    // }
 
     const onQuestionSelect = async (e) => {
         const idx = e.currentTarget.getAttribute('data-item')
@@ -40,7 +79,7 @@ const Question = () => {
         })
     }
     const submitHandler = (e) => {
-        e.preventDefault();
+        e.preventDefault()
     
         const requestOptions = {
             method: 'POST',
@@ -48,19 +87,34 @@ const Question = () => {
             body: JSON.stringify(data)
         };
     
-        fetch(`/putQuestion?idx=${currIdx-1}`, requestOptions);
+        if (currIdx === count + 1) {
+            fetch('/createQuestion', requestOptions)
+            setCount(count+1)
+        } else {
+            fetch(`/putQuestion?idx=${currIdx-1}`, requestOptions)
+        }
+        
+    };
+
+    const addQuestion = () => {
+        setData(dataTemplate);
+        setCurrIdx(count + 1);
+        menuItems.push(count + 1);
     };
 
     return (
         <div style={{display: "flex"}}>
-            <div className="sidebar">
-                <ul>
-                    {
-                        menuItems.map(item => (
-                            <li onClick={onQuestionSelect} key={item} data-item={item}>Question {item}</li>
-                        ))
-                    }
-                </ul>
+            <div> 
+                <button style={{margin: "10px"}} type="button" onClick={addQuestion}>Add Question</button>
+                <div className="sidebar">
+                    <ul>
+                        {
+                            menuItems.map(item => (
+                                <li onClick={onQuestionSelect} key={item} data-item={item}>Question {item}</li>
+                            ))
+                        }
+                    </ul>
+                </div>
             </div>
 
 
@@ -90,6 +144,7 @@ const Question = () => {
                   </form>
                 )}
             </div>
+
         </div>
     );
 }
