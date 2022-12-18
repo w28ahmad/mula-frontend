@@ -54,41 +54,48 @@ const Question = () => {
 
     const saveDiagram = (url, mainkey, subkey) => {
         if (url !== null) {
+          return new Promise((resolve, reject) => {
             fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    const formData = new FormData();
-                    formData.append('file', blob);
-
-                    return fetch('/diagrams', {
-                        method: 'POST',
-                        body: formData
-                    });
-                })
-                .then(response => response.json())
-                .then(result => {
-                    console.log(result);
-                    setData(prevData => {
-                        const newData = { ...prevData };
-                        newData[mainkey][subkey] = result.diagramID;
-                        return newData;
-                    });
-                })
-                .catch(error => console.error(error));
+              .then(response => response.blob())
+              .then(blob => {
+                const formData = new FormData();
+                formData.append('file', blob);
+      
+                return fetch('/diagrams', {
+                  method: 'POST',
+                  body: formData
+                });
+              })
+              .then(response => response.json())
+              .then(result => {
+                setData(prevData => {
+                  const newData = { ...prevData };
+                  newData[mainkey][subkey] = `'${result.diagramID}'`;
+                  return newData;
+                });
+                resolve(`'${result.diagramID}'`);
+              })
+              .catch(error => {
+                console.error(error);
+                reject(error);
+              });
+          });
         }
-    }
+        return "null"
+      }
+      
 
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault()
+
+        data['questionData']['diagram'] = await saveDiagram(questionDiagram, 'questionData', 'diagram');
+        data['solutionData']['diagram'] = await saveDiagram(solutionDiagram, 'solutionData', 'diagram');
 
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-
-        saveDiagram(questionDiagram, 'questionData', 'diagram');
-        saveDiagram(solutionDiagram, 'solutionData', 'diagram');
 
         if (currIdx === count + 1) {
             fetch('/createQuestion', requestOptions)
