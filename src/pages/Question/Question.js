@@ -10,7 +10,7 @@ const Question = () => {
     const navigate = useNavigate()
 
     const [count, setCount] = useState(null)
-    const [currIdx, setCurrIdx] = useState(null)
+    const [currId, setCurrId] = useState(null)
     const [data, setData] = useState(null)
     const [menuItems, setMenuItems] = useState([])
     const [questionDiagram, setQuestionDiagram] = useState(null)
@@ -31,12 +31,12 @@ const Question = () => {
     }, []);
 
     const onQuestionSelect = async (e) => {
-        const idx = e.currentTarget.getAttribute('data-item')
-        const response = await fetch(`/getQuestion?idx=${idx - 1}`);
+        const id = e.currentTarget.getAttribute('data-item')
+        const response = await fetch(`/getQuestion?id=${id}`);
         if(response.ok){
             const newData = await response.json();
             setData(newData)
-            setCurrIdx(idx)    
+            setCurrId(id)    
         }
     }
 
@@ -81,7 +81,7 @@ const Question = () => {
               });
           });
         }
-        return "null"
+        return data['questionData']['diagram']
       }
       
 
@@ -97,18 +97,18 @@ const Question = () => {
             body: JSON.stringify(data)
         };
 
-        if (currIdx === count + 1) {
+        if (currId === count + 1) {
             fetch('/createQuestion', requestOptions)
             setCount(count+1)
         } else {
-            fetch(`/putQuestion?idx=${currIdx-1}`, requestOptions)
+            fetch(`/putQuestion?id=${currId}`, requestOptions)
         }
 
     };
 
     const addQuestion = () => {
         setData(QUESTION_SCHEMA);
-        setCurrIdx(count + 1);
+        setCurrId(count + 1);
         menuItems.push(count + 1);
     };
 
@@ -150,7 +150,7 @@ const Question = () => {
     }
 
     const onGameIconClick = (e) => {
-        const idx = e.currentTarget.getAttribute('data-item')
+        const id = e.currentTarget.getAttribute('data-item')
         navigate("/game", {
           state: {
             user: {
@@ -164,12 +164,12 @@ const Question = () => {
                 },
                 {
                     id: "234-abc",
-                    name: "Adam"
+                    name: "Ayesha"
                 }
             ],
             sessionId: "5e34",
             debug: true,
-            questionIdx: idx
+            questionId: id
           }
         })
       }

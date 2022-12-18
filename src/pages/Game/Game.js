@@ -20,7 +20,7 @@ export default function Game() {
     const players = location.state.players
     const sessionId = location.state.sessionId
     const debug = location.state.debug
-    const questionIdx = location.state.questionIdx
+    const questionId = location.state.questionId
 
     const [isFinished, setIsFinished] = useState(false)
     const [score, setScore] = useState(0)
@@ -38,7 +38,7 @@ export default function Game() {
     const getQuestions = () => {
         if(debug){
             clientRef.sendMessage(GAME_SEND_DEBUG_TOPIC, JSON.stringify(
-                { questionIdx }
+                { questionId }
             ))    
         } else {
             clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify(
