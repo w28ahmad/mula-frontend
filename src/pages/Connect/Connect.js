@@ -67,6 +67,8 @@ export default function Connect() {
                 user,
                 players,
                 sessionId,
+                debug: false,
+                questionIdx: 0
             }
         })
     }

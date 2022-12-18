@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { QUESTION_SCHEMA } from './QuestionSchema'
 import Markdown from '../../components/Markdown/Markdown.component'
 
 import './Question.css'
 
 const Question = () => {
+
+    const navigate = useNavigate()
 
     const [count, setCount] = useState(null)
     const [currIdx, setCurrIdx] = useState(null)
@@ -139,6 +142,31 @@ const Question = () => {
         }
     }
 
+    const onGameIconClick = (e) => {
+        const idx = e.currentTarget.getAttribute('data-item')
+        navigate("/game", {
+          state: {
+            user: {
+                id: "123-abc",
+                name: "Wahab"
+            },
+            players: [
+                {
+                    id: "123-abc",
+                    name: "Wahab"
+                },
+                {
+                    id: "234-abc",
+                    name: "Adam"
+                }
+            ],
+            sessionId: "5e34",
+            debug: true,
+            questionIdx: idx
+          }
+        })
+      }
+
     return (
         <div style={{ display: "flex" }}>
             <div>
@@ -146,9 +174,14 @@ const Question = () => {
                 <div className="sidebar">
                     <ul>
                         {
-                            menuItems.map(item => (
-                                <li onClick={onQuestionSelect} key={item} data-item={item}>Question {item}</li>
-                            ))
+                        menuItems.map(item => (
+                            <li style={{ display: "flex", alignItems: "center", justifyContent: "flex-start" }} onClick={onQuestionSelect} key={item} data-item={item}>
+                            Question {item}
+                            <a style={{ marginLeft: "auto" }} href="/game" data-item={item} onClick={onGameIconClick}>
+                                <i className="fas fa-gamepad" />
+                            </a>
+                            </li>
+                        ))
                         }
                     </ul>
                 </div>
