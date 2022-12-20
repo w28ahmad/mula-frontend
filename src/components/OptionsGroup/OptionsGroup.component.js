@@ -6,16 +6,18 @@ export default function OptionsGroup(props) {
         Object.keys(options).map((keyName, _) => {
             if (keyName.startsWith("option")){
                 return (
-                    <button 
-                        className={'button mt-20'} 
+                    <div btn-value={options[keyName]} style={{display: 'block', margin: '10px'}}>
+                      <button 
+                        className={'btn btn-outline-primary'} 
                         type="submit" 
                         key={keyName} 
                         value={options[keyName]}
-                        onClick={props.onSolution}>
-                            <Markdown>
-                                {options[keyName]}
-                            </Markdown>
-                    </button>
+                        onClick={props.onSolution}
+                        style={{width: '100%', padding: '20px', textAlign: 'center'}}
+                      >
+                        <Markdown>{options[keyName]}</Markdown>
+                      </button>
+                    </div>
                 )
             }
             return null

@@ -85,7 +85,7 @@ export default function Game() {
         const questionSolution = {
             userId: activeUser.id,
             questionId: questions[score].id,
-            solution: e.target.innerText
+            solution: e.target.value
         }
         clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(questionSolution))
     }
