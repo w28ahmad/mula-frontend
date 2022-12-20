@@ -32,11 +32,15 @@ const Question = () => {
 
     const onQuestionSelect = async (e) => {
         const id = e.currentTarget.getAttribute('data-item')
+        
+        setSolutionDiagram(null)
+        setQuestionDiagram(null)
+        setCurrId(id)
+        
         const response = await fetch(`/getQuestion?id=${id}`);
         if(response.ok){
             const newData = await response.json();
             setData(newData)
-            setCurrId(id)    
         }
     }
 
@@ -70,10 +74,10 @@ const Question = () => {
               .then(result => {
                 setData(prevData => {
                   const newData = { ...prevData };
-                  newData[mainkey][subkey] = `'${result.diagramID}'`;
+                  newData[mainkey][subkey] = result.diagramID
                   return newData;
                 });
-                resolve(`'${result.diagramID}'`);
+                resolve(result.diagramID);
               })
               .catch(error => {
                 console.error(error);
@@ -81,7 +85,7 @@ const Question = () => {
               });
           });
         }
-        return data['questionData']['diagram']
+        return data[mainkey][subkey]
       }
       
 
@@ -98,10 +102,13 @@ const Question = () => {
         };
 
         if (currId === count + 1) {
-            fetch('/createQuestion', requestOptions)
-            setCount(count+1)
+            const response = await fetch('/createQuestion', requestOptions)
+            console.log(response)
+            if(response.ok) setCount(count+1)
+            else            console.error(response)
         } else {
-            fetch(`/putQuestion?id=${currId}`, requestOptions)
+            const response = await fetch(`/putQuestion?id=${currId}`, requestOptions)
+            if(!response.ok) console.error(response)
         }
 
     };
