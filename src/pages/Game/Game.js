@@ -27,7 +27,8 @@ export default function Game() {
     const [questions, setQuestions] = useState([{
         questionSnippet: '',
         options: {},
-        id: null
+        id: null,
+        diagram: ''
     }])
 
     const updateProgressBar = useRef(null)
@@ -80,7 +81,6 @@ export default function Game() {
         clientRef.sendMessage(DISCONN_SEND_TOPIC, JSON.stringify(data))
     }
 
-    // TODO: Fix the score issue
     const onSolution = (e) => {
         const questionSolution = {
             userId: activeUser.id,
@@ -94,6 +94,10 @@ export default function Game() {
 
     return (
         <div className="outerContainer">
+            {/* {
+                !isFinished && questions[score].diagram ?
+                :null
+            } */}
             <div style={{ "color": "white", "width": "30%" }}>
                 {
                     isFinished ? <h1>FINISHED</h1> : null
@@ -106,6 +110,7 @@ export default function Game() {
                         null : // TODO: back to home page
                         <div>
                             <Markdown>{questions[score].questionSnippet}</Markdown>
+                            <img src={questions[score].diagram} style={{ width: '75%', margin: "2.5%" }} alt="" />
                             <OptionsGroup options={questions[score].options} onSolution={onSolution} />
                         </div>
                 }

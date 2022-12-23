@@ -103,7 +103,6 @@ const Question = () => {
 
         if (currId === count + 1) {
             const response = await fetch('/createQuestion', requestOptions)
-            console.log(response)
             if(response.ok) setCount(count+1)
             else            console.error(response)
         } else {

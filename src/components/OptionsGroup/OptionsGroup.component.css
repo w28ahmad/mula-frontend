@@ -1,0 +1,8 @@
+.optionsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.optionsGrid > div:nth-child(odd):last-child {
+    grid-column: 1 / span 2;
+}
