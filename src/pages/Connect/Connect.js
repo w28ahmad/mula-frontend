@@ -105,7 +105,7 @@ export default function Connect() {
     return (
         <div className="outerContainer">
             <div className="tableContainer">
-                <div>{secondsLeft} seconds left before game starts</div>
+                <div style={{margin: "10px"}}>{secondsLeft} seconds left before game starts</div>
                 <PlayersTable players={players} />
                 <SockJsClient
                     url={SOCKET_URL}
