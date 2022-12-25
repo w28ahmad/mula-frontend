@@ -1,5 +1,5 @@
 
-export const HOST = "http://localhost:8080"
+export const HOST = "afe6722196936407592eb00432203ec0-226711586.us-east-1.elb.amazonaws.com"
 
 export const SOCKET_URL = HOST+"/ws-message";
 

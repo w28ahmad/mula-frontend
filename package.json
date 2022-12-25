@@ -1,7 +1,7 @@
 {
   "name": "mula-frontend",
   "version": "0.1.0",
-  "proxy": "http://localhost:8080",
+  "proxy": "afe6722196936407592eb00432203ec0-226711586.us-east-1.elb.amazonaws.com",
   "homepage": ".",
   "private": true,
   "dependencies": {
