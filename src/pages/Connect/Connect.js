@@ -7,11 +7,11 @@ import {
   SOCKET_URL,
   CONN_RECV_TOPIC,
   CONN_SEND_TOPIC,
-  CLOSE_SEND_TOPIC,
   DISCONN_SEND_TOPIC,
+  DISCONN_RECV_TOPIC,
   PLAYER_CONNECTION,
   PLAYER_DISCONNECTION,
-  SESSION_CLOSE,
+  START_GAME,
 } from "../../data/SocketData";
 
 export default function Connect() {
@@ -28,9 +28,10 @@ export default function Connect() {
 
   const [sessionId, setSessionId] = useState(null);
 
-  const [secondsLeft, setSecondsLeft] = useState(10);
+  // const [secondsLeft, setSecondsLeft] = useState(10);
 
   const onMessage = (data) => {
+    console.log(data)
     switch (data.type) {
       // Request for player to join the game
       case PLAYER_CONNECTION:
@@ -38,10 +39,10 @@ export default function Connect() {
         break;
       // Request for a player to leave the game
       case PLAYER_DISCONNECTION:
-        somePlayerDisconnected(data);
+        onPlayerDisconnect(data);
         break;
-      // Request for a session to close to game can begin
-      case SESSION_CLOSE:
+      // start the game
+      case START_GAME:
         startGame();
         break;
       default:
@@ -59,9 +60,7 @@ export default function Connect() {
   };
 
   // Reset session users on disconnection
-  const somePlayerDisconnected = (data) => {
-    setPlayers(data.users);
-  };
+  const onPlayerDisconnect = (data) => setPlayers(data.users);
 
   // Broadcast player on connection
   const onConnection = () =>
@@ -70,7 +69,7 @@ export default function Connect() {
   const onDisconnect = () => {};
 
   // Remove player from session
-  const removePlayer = () => {
+  const clientDisconnection = () => {
     let data = {
       sessionId: sessionId,
       users: [user],
@@ -78,14 +77,7 @@ export default function Connect() {
     clientRef.sendMessage(DISCONN_SEND_TOPIC, JSON.stringify(data));
   };
 
-  // Closes an open session
-  const closeSession = () =>
-    clientRef.sendMessage(CLOSE_SEND_TOPIC, JSON.stringify(sessionId));
-
   const startGame = () => {
-    // Close open session
-    closeSession();
-
     // Navigate to the game page
     navigate("/game", {
       state: {
@@ -100,34 +92,20 @@ export default function Connect() {
 
   // On refresh we don't want to re-add player
   useEffect(() => {
-    window.onbeforeunload = () => removePlayer();
+    window.onbeforeunload = () => clientDisconnection();
   });
-
-  // 10 second timer
-  // TODO: remove
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSecondsLeft((secondsLeft) => secondsLeft - 1);
-    }, 1000);
-
-    if (secondsLeft === 0) {
-      clearInterval(interval);
-      startGame();
-    }
-
-    return () => clearInterval(interval);
-  }, [secondsLeft, startGame]);
 
   return (
     <div className="outerContainer">
       <div className="tableContainer">
         <div style={{ margin: "10px" }}>
-          {secondsLeft} seconds left before game starts
+          TODO: timer goes here
+          {/* {secondsLeft} seconds left before game starts */}
         </div>
         <PlayersTable players={players} />
         <SockJsClient
           url={SOCKET_URL}
-          topics={[CONN_RECV_TOPIC]}
+          topics={[CONN_RECV_TOPIC, DISCONN_RECV_TOPIC]}
           onMessage={onMessage}
           onConnect={onConnection}
           onDisconnect={onDisconnect}

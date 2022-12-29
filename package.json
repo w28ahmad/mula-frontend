@@ -11,7 +11,7 @@
     "react-katex": "^3.0.1",
     "react-markdown": "^8.0.3",
     "react-mathjax": "^1.0.1",
-    "react-router-dom": "^6.4.3",
+    "react-router-dom": "^6.6.1",
     "react-scripts": "5.0.1",
     "react-stomp": "^5.1.0",
     "react-talk": "^1.0.0",
