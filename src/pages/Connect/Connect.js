@@ -28,10 +28,9 @@ export default function Connect() {
 
   const [sessionId, setSessionId] = useState(null);
 
-  // const [secondsLeft, setSecondsLeft] = useState(10);
+  const [counter, setCounter] = useState(10);
 
   const onMessage = (data) => {
-    console.log(data)
     switch (data.type) {
       // Request for player to join the game
       case PLAYER_CONNECTION:
@@ -56,6 +55,7 @@ export default function Connect() {
   const onPlayersConnect = (data) => {
     setSessionId(data.sessionId);
     setPlayers(data.users);
+    setCounter(data.remainingTime);
     if (user.id == null) setUser(data.users.at(0));
   };
 
@@ -95,12 +95,18 @@ export default function Connect() {
     window.onbeforeunload = () => clientDisconnection();
   });
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((counter) => counter > 0 ? counter - 1 : counter);
+    }, 1000);
+    return () => clearInterval(interval);
+  });
+
   return (
     <div className="outerContainer">
       <div className="tableContainer">
         <div style={{ margin: "10px" }}>
-          TODO: timer goes here
-          {/* {secondsLeft} seconds left before game starts */}
+          <h1>{counter}</h1>
         </div>
         <PlayersTable players={players} />
         <SockJsClient
