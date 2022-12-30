@@ -97,7 +97,7 @@ export default function Connect() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCounter((counter) => counter > 0 ? counter - 1 : counter);
+      setCounter((counter) => (counter > 0 ? counter - 1 : counter));
     }, 1000);
     return () => clearInterval(interval);
   });

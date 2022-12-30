@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 import ProgressGroup from "../../components/ProgressGroup/ProgressGroup.component";
@@ -13,8 +13,8 @@ import {
   GAME_SEND_DEBUG_TOPIC,
   SOLUTION_SEND_TOPIC,
   QUESTION_SET,
-  USER_SOLUTION,
-  DISCONN_SEND_TOPIC,
+  SCORE_RESPONSE,
+  QUESTION_TEMPLATE,
 } from "../../data/SocketData";
 
 import "./Game.css";
@@ -22,7 +22,8 @@ import "./Game.css";
 export default function Game() {
   let clientRef = null;
   const location = useLocation();
-  const activeUser = location.state.user;
+
+  const [activeUser, setActiveUser] = useState(location.state.user);
   const players = location.state.players;
   const sessionId = location.state.sessionId;
   const debug = location.state.debug;
@@ -30,14 +31,9 @@ export default function Game() {
 
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
-  const [questions, setQuestions] = useState([
-    {
-      questionSnippet: "",
-      options: {},
-      id: null,
-      diagram: "",
-    },
-  ]);
+
+  const [activeQuestion, setActiveQuestion] = useState(QUESTION_TEMPLATE);
+  const [questions, setQuestions] = useState([QUESTION_TEMPLATE]);
 
   const updateProgressBar = useRef(null);
   let step = 100 / questions.length;
@@ -54,15 +50,17 @@ export default function Game() {
     else clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify({ sessionId }));
   };
 
-  // Set questions 
+  // Set questions
   // validate solution
   const onQuestionReceive = (data) => {
+    console.log(data);
     switch (data.type) {
       case QUESTION_SET:
         setQuestions(data.questions);
+        setActiveQuestion(data.questions[score]);
         break;
-      case USER_SOLUTION:
-        if (data.isCorrect) updateScores(data.userId);
+      case SCORE_RESPONSE:
+        updateScores(data.user);
         break;
       default:
         break;
@@ -70,29 +68,20 @@ export default function Game() {
   };
 
   // Update score on correct solution
-  const updateScores = (userId) => {
-    if (userId === activeUser.id) {
-      setScore(score + 1);
-      if (score + 1 === questions.length) {
-        setIsFinished(true);
-        removePlayer(activeUser);
-      }
+  const updateScores = (user) => {
+    if (user.id === activeUser.id) {
+      setScore(user.score);
+      setIsFinished(user.score === questions.length);
+      setActiveQuestion(questions[user.score]);
+      setActiveUser(user);
     }
-    updateProgressBar.current(userId);
-  };
-
-  // Remove Player if finished playing
-  const removePlayer = (activeUser) => {
-    let data = {
-      sessionId: sessionId,
-      users: [activeUser],
-    };
-    clientRef.sendMessage(DISCONN_SEND_TOPIC, JSON.stringify(data));
+    updateProgressBar.current(user.id, user.score);
   };
 
   const onSolution = (e) => {
     const questionSolution = {
-      userId: activeUser.id,
+      sessionId: sessionId,
+      user: activeUser,
       questionId: questions[score].id,
       solution: e.target.value,
     };
@@ -103,6 +92,15 @@ export default function Game() {
   };
 
   const onDisconnect = () => {};
+
+  // On refresh we want to ensure everything is reset
+  useEffect(() => {
+    window.onbeforeunload = () => clientDisconnection();
+  });
+
+  const clientDisconnection = () => {
+    /* TODO */
+  };
 
   return (
     <div className="outerContainer">
@@ -117,14 +115,14 @@ export default function Game() {
 
         {isFinished ? null : ( // TODO: back to home page
           <div>
-            <Markdown>{questions[score].questionSnippet}</Markdown>
+            <Markdown>{activeQuestion.questionSnippet}</Markdown>
             <img
-              src={questions[score].diagram}
+              src={activeQuestion.diagram}
               style={{ width: "75%", margin: "2.5%" }}
               alt=""
             />
             <OptionsGroup
-              options={questions[score].options}
+              options={activeQuestion.options}
               onSolution={onSolution}
             />
           </div>
