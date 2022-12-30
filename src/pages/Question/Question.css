@@ -21,3 +21,8 @@
     margin-left: 200px;
     background-color: #fff;
 }
+
+.selected {
+    background-color: #ddd;
+}
+  
