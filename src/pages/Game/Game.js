@@ -8,7 +8,7 @@ import Markdown from "../../components/Markdown/Markdown.component";
 
 import {
   SOCKET_URL,
-  GAME_RECV_TOPIC,
+  // GAME_RECV_TOPIC,
   GAME_SEND_TOPIC,
   GAME_SEND_DEBUG_TOPIC,
   SOLUTION_SEND_TOPIC,
@@ -26,6 +26,7 @@ export default function Game() {
   const [activeUser, setActiveUser] = useState(location.state.user);
   const players = location.state.players;
   const sessionId = location.state.sessionId;
+  const userId = location.state.user.id;
   const debug = location.state.debug;
   const questionId = location.state.questionId;
 
@@ -104,7 +105,7 @@ export default function Game() {
 
   return (
     <div className="outerContainer">
-      <div style={{ color: "white", width: "30%" }}>
+      <div style={{ color: "white", width: "50%" }}>
         {isFinished ? <h1>FINISHED</h1> : null}
 
         <ProgressGroup
@@ -118,7 +119,7 @@ export default function Game() {
             <Markdown>{activeQuestion.questionSnippet}</Markdown>
             <img
               src={activeQuestion.diagram}
-              style={{ width: "75%", margin: "2.5%" }}
+              style={{ width: "45%", margin: "2.5%" }}
               alt=""
             />
             <OptionsGroup
@@ -130,7 +131,7 @@ export default function Game() {
 
         <SockJsClient
           url={SOCKET_URL}
-          topics={[GAME_RECV_TOPIC]}
+          topics={[`/topic/${sessionId}/game`, `/topic/${userId}/game`]}
           onMessage={onQuestionReceive}
           onConnect={onConnect}
           onDisconnect={onDisconnect}
