@@ -61,13 +61,9 @@ export default function Game() {
         setActiveQuestion(data.questions[activeQuestionIdx]);
         break;
       case SCORE_RESPONSE:
-        highlightOption(data.user.isCorrect);
-        setTimeout(() => {
-          selectedOption.className = "btn btn-primary";
-          const newQuestions = [...questions, ...data.backupQuestion];
-          setQuestions(newQuestions);
-          progressUpdate(data.user, newQuestions);
-        }, 500); // 0.5 seconds
+        const newQuestions = [...questions, ...data.backupQuestion];
+        setQuestions(newQuestions);
+        progressUpdate(data.user, newQuestions);
         break;
       default:
         break;
@@ -82,15 +78,22 @@ export default function Game() {
   const progressUpdate = (user, newQuestions) => {
     if (user.id === activeUser.id) {
       setActiveUser(user);
-      if (user.score < questionsLength) {
-        setActiveQuestion(newQuestions[activeQuestionIdx + 1]);
-        setActiveQuestionIdx(activeQuestionIdx + 1);
-      } else setIsFinished(true);
+      highlightOption(user.isCorrect);
+
+      // Change questions after 0.5 seconds
+      setTimeout(() => {
+        selectedOption.className = "btn btn-primary";
+        if (user.score < questionsLength) {
+          setActiveQuestion(newQuestions[activeQuestionIdx + 1]);
+          setActiveQuestionIdx(activeQuestionIdx + 1);
+        } else setIsFinished(true);
+      }, 500);
     }
     updateProgressBar.current(user.id, user.score);
   };
 
   const onSolution = (e) => {
+    setSelectedOption(e.target);
     const questionSolution = {
       sessionId: sessionId,
       user: activeUser,
@@ -101,7 +104,6 @@ export default function Game() {
       SOLUTION_SEND_TOPIC,
       JSON.stringify(questionSolution)
     );
-    setSelectedOption(e.target);
   };
 
   const onDisconnect = () => {};

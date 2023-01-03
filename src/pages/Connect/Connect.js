@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import SockJsClient from "../../services/SockJsClient";
 import PlayersTable from "../../components/PlayersTable/PlayersTable.component";
@@ -15,14 +15,13 @@ import {
 } from "../../data/SocketData";
 
 export default function Connect() {
-  const url = new URL(window.location.href);
-
   let clientRef = null;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState({
     id: null,
-    name: url.searchParams.get("name"),
+    name: location.state.name,
   });
   const [players, setPlayers] = useState([user]);
 
