@@ -8,7 +8,6 @@ import Markdown from "../../components/Markdown/Markdown.component";
 
 import {
   SOCKET_URL,
-  // GAME_RECV_TOPIC,
   GAME_SEND_TOPIC,
   GAME_SEND_DEBUG_TOPIC,
   SOLUTION_SEND_TOPIC,
@@ -24,20 +23,19 @@ export default function Game() {
   const location = useLocation();
 
   const [activeUser, setActiveUser] = useState(location.state.user);
+  const [activeQuestion, setActiveQuestion] = useState(QUESTION_TEMPLATE);
+  const [questions, setQuestions] = useState([QUESTION_TEMPLATE]);
+  const [questionsLength, setQuestionsLength] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+  const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
+
   const players = location.state.players;
   const sessionId = location.state.sessionId;
-  const userId = location.state.user.id;
   const debug = location.state.debug;
   const questionId = location.state.questionId;
 
-  const [isFinished, setIsFinished] = useState(false);
-  const [score, setScore] = useState(0);
-
-  const [activeQuestion, setActiveQuestion] = useState(QUESTION_TEMPLATE);
-  const [questions, setQuestions] = useState([QUESTION_TEMPLATE]);
-
   const updateProgressBar = useRef(null);
-  let step = 100 / questions.length;
+  let step = 100 / questionsLength;
 
   const onConnect = () => getQuestions();
 
@@ -58,23 +56,26 @@ export default function Game() {
     switch (data.type) {
       case QUESTION_SET:
         setQuestions(data.questions);
-        setActiveQuestion(data.questions[score]);
+        setQuestionsLength(data.questions.length);
+        setActiveQuestion(data.questions[activeQuestionIdx]);
         break;
       case SCORE_RESPONSE:
-        updateScores(data.user);
+        const newQuestions = [...questions, ...data.backupQuestion];
+        setQuestions(newQuestions);
+        progressUpdate(data.user, newQuestions);
         break;
       default:
         break;
     }
   };
 
-  // Update score on correct solution
-  const updateScores = (user) => {
+  const progressUpdate = (user, newQuestions) => {
     if (user.id === activeUser.id) {
-      setScore(user.score);
-      setIsFinished(user.score === questions.length);
-      setActiveQuestion(questions[user.score]);
       setActiveUser(user);
+      if (user.score < questionsLength) {
+        setActiveQuestion(newQuestions[activeQuestionIdx + 1]);
+        setActiveQuestionIdx(activeQuestionIdx + 1);
+      } else setIsFinished(true);
     }
     updateProgressBar.current(user.id, user.score);
   };
@@ -83,7 +84,7 @@ export default function Game() {
     const questionSolution = {
       sessionId: sessionId,
       user: activeUser,
-      questionId: questions[score].id,
+      questionId: questions[activeQuestionIdx].id,
       solution: e.target.value,
     };
     clientRef.sendMessage(
@@ -131,7 +132,7 @@ export default function Game() {
 
         <SockJsClient
           url={SOCKET_URL}
-          topics={[`/topic/${sessionId}/game`, `/topic/${userId}/game`]}
+          topics={[`/topic/${sessionId}/game`]}
           onMessage={onQuestionReceive}
           onConnect={onConnect}
           onDisconnect={onDisconnect}

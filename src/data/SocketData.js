@@ -17,7 +17,6 @@ export const DISCONN_SEND_TOPIC = "/app/disconnect";
 
 // Game Topics
 // send, recv and debug
-export const GAME_RECV_TOPIC = "/topic/game";
 export const GAME_SEND_TOPIC = "/app/game";
 export const GAME_SEND_DEBUG_TOPIC = "/app/gameDebug";
 
