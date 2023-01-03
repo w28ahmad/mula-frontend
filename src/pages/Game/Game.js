@@ -28,6 +28,7 @@ export default function Game() {
   const [questionsLength, setQuestionsLength] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const players = location.state.players;
   const sessionId = location.state.sessionId;
@@ -60,13 +61,22 @@ export default function Game() {
         setActiveQuestion(data.questions[activeQuestionIdx]);
         break;
       case SCORE_RESPONSE:
-        const newQuestions = [...questions, ...data.backupQuestion];
-        setQuestions(newQuestions);
-        progressUpdate(data.user, newQuestions);
+        highlightOption(data.user.isCorrect);
+        setTimeout(() => {
+          selectedOption.className = "btn btn-primary";
+          const newQuestions = [...questions, ...data.backupQuestion];
+          setQuestions(newQuestions);
+          progressUpdate(data.user, newQuestions);
+        }, 500); // 0.5 seconds
         break;
       default:
         break;
     }
+  };
+
+  const highlightOption = (isCorrect) => {
+    if (isCorrect) selectedOption.className = "btn btn-success";
+    else selectedOption.className = "btn btn-danger";
   };
 
   const progressUpdate = (user, newQuestions) => {
@@ -91,6 +101,7 @@ export default function Game() {
       SOLUTION_SEND_TOPIC,
       JSON.stringify(questionSolution)
     );
+    setSelectedOption(e.target);
   };
 
   const onDisconnect = () => {};
