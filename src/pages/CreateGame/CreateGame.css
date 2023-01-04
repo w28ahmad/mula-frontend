@@ -1,23 +1,58 @@
 .outerContainer {
     color: white
 }
-/* .create-game-container {
+
+.create-game-container {
+    width: 50%;
+}
+
+.slider {
+    width: 100%;
+}
+
+.labels {
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    margin-top: 10px;
   }
   
-  .create-game-container > * {
-    margin: 0 10px;
+  .labels label {
+    font-size: 20px;
+    color: #999;
+  }
+
+.form-group {
+    margin: 40px 0px;
+}
+
+.OptionGroup {
+    margin: 40px 0px;
+}
+
+.difficulty-checkboxes .form-check {
+    display: inline-block;
+    margin: 0;
   }
   
-  .slider {
-    width: 300px;
+  .difficulty-checkboxes .form-check-input {
+    display: none;
   }
   
+  .difficulty-checkboxes .form-check-label {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0;
+    cursor: pointer;
+    border: 1px solid white;
+    border-radius: 4px;
+    font-size: 14px;
+    color: white;
+  }
+
+  .difficulty-checkboxes .form-check-input:checked + .form-check-label {
+    background-color: #007bff;
+    color: #fff;
+  }
   
-  .submit-button {
-    width: 25%;
-  } */
   
