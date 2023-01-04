@@ -118,7 +118,7 @@ export default function Game() {
   };
 
   return (
-    <div className="outerContainer">
+    <div className="outerContainer gameOuterContainer">
       <div style={{ color: "white", width: "50%" }}>
         {isFinished ? <h1>FINISHED</h1> : null}
 

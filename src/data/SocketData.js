@@ -1,4 +1,4 @@
-export const HOST = "http://localhost:8080";
+export const HOST = "http://192.168.0.20:8080";
 
 // Socket Connection URL
 export const SOCKET_URL = HOST + "/ws-message";

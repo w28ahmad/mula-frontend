@@ -1,0 +1,4 @@
+.gameOuterContainer {
+    height: calc(100% + 500px);
+    min-height: 100vh;
+}

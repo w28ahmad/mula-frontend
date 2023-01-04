@@ -8,8 +8,11 @@ export default function Join() {
   const navigate = useNavigate();
 
   const joinGame = (e) => {
-    if (!name) e.preventDefault();
-    navigate("/connect", {
+    if (!name) {
+      e.preventDefault();
+      return;
+    }
+    navigate("/joinGame", {
       state: {
         name,
       },
@@ -17,7 +20,15 @@ export default function Join() {
   };
 
   const createGame = (e) => {
-    if (!name) e.preventDefault();
+    if (!name) {
+      e.preventDefault();
+      return;
+    }
+    navigate("/createGame", {
+      state: {
+        name,
+      },
+    });
   };
 
   return (
@@ -34,7 +45,7 @@ export default function Join() {
             />
           </div>
           <button onClick={joinGame} className={"button mt-20"} type="submit">
-            Connect
+            Join Game
           </button>
           <button onClick={createGame} className={"button mt-20"} type="submit">
             Create Game

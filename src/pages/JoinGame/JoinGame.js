@@ -14,7 +14,9 @@ import {
   START_GAME,
 } from "../../data/SocketData";
 
-export default function Connect() {
+import "./JoinGame.css";
+
+export default function JoinGame() {
   let clientRef = null;
   const navigate = useNavigate();
   const location = useLocation();
