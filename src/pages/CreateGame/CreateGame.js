@@ -38,23 +38,66 @@ export default function CreateGame() {
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="easy" />
               <label className="form-check-label" htmlFor="easy">
-                EASY
+                Easy
               </label>
             </div>
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="medium" />
               <label className="form-check-label" htmlFor="medium">
-                MEDIUM
+                Medium
               </label>
             </div>
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="hard" />
               <label className="form-check-label" htmlFor="hard">
-                HARD
+                Hard
               </label>
             </div>
           </div>
         </div>
+
+        <div class="form-group subject-checkboxes">
+          <h3 class="title">Subject</h3>
+          <div class="OptionGroup">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="subject"
+                id="math"
+                value="math"
+              />
+              <label class="form-check-label" for="math">
+                Math
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="subject"
+                id="english"
+                value="english"
+              />
+              <label class="form-check-label" for="english">
+                English
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="subject"
+                id="programming"
+                value="programming"
+              />
+              <label class="form-check-label" for="programming">
+                Programming
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div className="submit-button">
           <button className="button mt-20" style={{ width: "35%" }}>
             CREATE GAME
