@@ -10,6 +10,40 @@ export default function CreateGame() {
     name: location.state.name,
   });
 
+  const [options, setOptions] = useState({
+    grade: 7,
+    difficulty: [],
+    subject: null,
+  });
+
+  const handleOptionChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setOptions((prevOptions) => {
+      if (type === "checkbox") {
+        if (checked) {
+          return {
+            ...prevOptions,
+            [name]: [...prevOptions[name], value],
+          };
+        } else {
+          return {
+            ...prevOptions,
+            [name]: prevOptions[name].filter((option) => option !== value),
+          };
+        }
+      } else {
+        return {
+          ...prevOptions,
+          [name]: value,
+        };
+      }
+    });
+  };
+
+  const handleCreateButtonClick = () => {
+    console.log(`Selected options:`, options);
+  };
+
   return (
     <div className="outerContainer">
       <div className="create-game-container">
@@ -21,6 +55,9 @@ export default function CreateGame() {
             max="12"
             step="1"
             className="form-control-range slider"
+            name="grade"
+            value={options.grade}
+            onChange={handleOptionChange}
           />
 
           <div className="labels">
@@ -36,19 +73,43 @@ export default function CreateGame() {
           <h3 className="title">Difficulty</h3>
           <div className="OptionGroup">
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="easy" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="easy"
+                name="difficulty"
+                value="easy"
+                checked={options.difficulty.includes("easy")}
+                onChange={handleOptionChange}
+              />
               <label className="form-check-label" htmlFor="easy">
                 Easy
               </label>
             </div>
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="medium" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="medium"
+                name="difficulty"
+                value="medium"
+                checked={options.difficulty.includes("medium")}
+                onChange={handleOptionChange}
+              />
               <label className="form-check-label" htmlFor="medium">
                 Medium
               </label>
             </div>
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="hard" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="hard"
+                name="difficulty"
+                value="hard"
+                checked={options.difficulty.includes("hard")}
+                onChange={handleOptionChange}
+              />
               <label className="form-check-label" htmlFor="hard">
                 Hard
               </label>
@@ -56,42 +117,48 @@ export default function CreateGame() {
           </div>
         </div>
 
-        <div class="form-group subject-checkboxes">
-          <h3 class="title">Subject</h3>
-          <div class="OptionGroup">
-            <div class="form-check">
+        <div className="form-group subject-checkboxes">
+          <h3 className="title">Subject</h3>
+          <div className="OptionGroup">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 type="radio"
                 name="subject"
                 id="math"
                 value="math"
+                checked={options.subject === "math"}
+                onChange={handleOptionChange}
               />
-              <label class="form-check-label" for="math">
+              <label className="form-check-label" htmlFor="math">
                 Math
               </label>
             </div>
-            <div class="form-check">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 type="radio"
                 name="subject"
                 id="english"
                 value="english"
+                checked={options.subject === "english"}
+                onChange={handleOptionChange}
               />
-              <label class="form-check-label" for="english">
+              <label className="form-check-label" htmlFor="english">
                 English
               </label>
             </div>
-            <div class="form-check">
+            <div className="form-check">
               <input
-                class="form-check-input"
+                className="form-check-input"
                 type="radio"
                 name="subject"
                 id="programming"
                 value="programming"
+                checked={options.subject === "programming"}
+                onChange={handleOptionChange}
               />
-              <label class="form-check-label" for="programming">
+              <label className="form-check-label" htmlFor="programming">
                 Programming
               </label>
             </div>
@@ -99,7 +166,11 @@ export default function CreateGame() {
         </div>
 
         <div className="submit-button">
-          <button className="button mt-20" style={{ width: "35%" }}>
+          <button
+            className="button mt-20"
+            style={{ width: "35%" }}
+            onClick={handleCreateButtonClick}
+          >
             CREATE GAME
           </button>
         </div>
