@@ -23,6 +23,9 @@ export const DISCONN_SEND_TOPIC = "/app/disconnect";
 export const GAME_SEND_TOPIC = "/app/game";
 export const GAME_SEND_DEBUG_TOPIC = "/app/gameDebug";
 
+// Room Topics
+export const ROOM_SEND_TOPIC = "/app/createGame/getQuestions";
+
 // Solution Send topic
 export const SOLUTION_SEND_TOPIC = "/app/solution";
 

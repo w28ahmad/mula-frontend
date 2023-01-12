@@ -9,6 +9,7 @@ import Markdown from "../../components/Markdown/Markdown.component";
 import {
   SOCKET_URL,
   GAME_SEND_TOPIC,
+  ROOM_SEND_TOPIC,
   GAME_SEND_DEBUG_TOPIC,
   SOLUTION_SEND_TOPIC,
   QUESTION_SET,
@@ -31,6 +32,8 @@ export default function Game() {
   const [selectedOption, setSelectedOption] = useState(null);
 
   const players = location.state.players;
+  const isRoom = location.state.isRoom;
+  const roomId = location.state.roomId;
   const sessionId = location.state.sessionId;
   const debug = location.state.debug;
   const questionId = location.state.questionId;
@@ -47,6 +50,8 @@ export default function Game() {
         GAME_SEND_DEBUG_TOPIC,
         JSON.stringify({ questionId })
       );
+    else if (isRoom)
+      clientRef.sendMessage(ROOM_SEND_TOPIC, JSON.stringify({ roomId }));
     else clientRef.sendMessage(GAME_SEND_TOPIC, JSON.stringify({ sessionId }));
   };
 
@@ -95,15 +100,14 @@ export default function Game() {
   const onSolution = (e) => {
     setSelectedOption(e.target);
     const questionSolution = {
-      sessionId: sessionId,
       user: activeUser,
       questionId: questions[activeQuestionIdx].id,
       solution: e.target.value,
     };
-    clientRef.sendMessage(
-      SOLUTION_SEND_TOPIC,
-      JSON.stringify(questionSolution)
-    );
+    const body = isRoom
+      ? { ...questionSolution, roomId }
+      : { ...questionSolution, sessionId };
+    clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(body));
   };
 
   const onDisconnect = () => {};
@@ -145,7 +149,9 @@ export default function Game() {
 
         <SockJsClient
           url={SOCKET_URL}
-          topics={[`/topic/${sessionId}/game`]}
+          topics={[
+            isRoom ? `/topic/${roomId}/game` : `/topic/${sessionId}/game`,
+          ]}
           onMessage={onQuestionReceive}
           onConnect={onConnect}
           onDisconnect={onDisconnect}

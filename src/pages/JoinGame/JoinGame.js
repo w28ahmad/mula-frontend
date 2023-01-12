@@ -98,6 +98,8 @@ export default function JoinGame() {
       state: {
         user,
         players,
+        isRoom,
+        roomId,
         sessionId,
         debug: false,
         questionId: 0,
