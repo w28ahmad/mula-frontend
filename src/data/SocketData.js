@@ -7,6 +7,9 @@ export const SOCKET_URL = HOST + "/ws-message";
 export const CONN_RECV_TOPIC = "/topic/connect";
 export const CONN_SEND_TOPIC = "/app/connect";
 
+// Player CreateGame Connection topics
+export const CONN_ROOM_SEND_TOPIC = "/app/createGame/connect";
+
 // Player close session topic -- change session
 // from open to close
 export const CLOSE_SEND_TOPIC = "/app/close";

@@ -7,6 +7,7 @@ import {
   SOCKET_URL,
   CONN_RECV_TOPIC,
   CONN_SEND_TOPIC,
+  CONN_ROOM_SEND_TOPIC,
   DISCONN_SEND_TOPIC,
   DISCONN_RECV_TOPIC,
   PLAYER_CONNECTION,
@@ -21,6 +22,9 @@ export default function JoinGame() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isRoom = location.state.isRoom || false;
+  const options = location.state.options || null;
+
   const [user, setUser] = useState({
     id: null,
     name: location.state.name,
@@ -28,6 +32,7 @@ export default function JoinGame() {
   const [players, setPlayers] = useState([user]);
 
   const [sessionId, setSessionId] = useState(null);
+  const [roomId, setRoomId] = useState(null);
 
   const [counter, setCounter] = useState(10);
 
@@ -54,9 +59,13 @@ export default function JoinGame() {
   // Set sessionID & Players
   // Active user will be at the first index
   const onPlayersConnect = (data) => {
-    setSessionId(data.sessionId);
+    if (isRoom) {
+      setRoomId(data.roomId);
+    } else {
+      setSessionId(data.sessionId);
+      setCounter(data.remainingTime);
+    }
     setPlayers(data.users);
-    setCounter(data.remainingTime);
     if (user.id == null) setUser(data.users.at(0));
   };
 
@@ -65,7 +74,12 @@ export default function JoinGame() {
 
   // Broadcast player on connection
   const onConnection = () =>
-    clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user));
+    isRoom
+      ? clientRef.sendMessage(
+          CONN_ROOM_SEND_TOPIC,
+          JSON.stringify({ ...options, user })
+        )
+      : clientRef.sendMessage(CONN_SEND_TOPIC, JSON.stringify(user));
 
   const onDisconnect = () => {};
 
@@ -103,12 +117,19 @@ export default function JoinGame() {
     return () => clearInterval(interval);
   });
 
+  const copyLink = () => {
+    let link = window.location.href;
+    navigator.clipboard.writeText(link + `?roomId=${roomId}`);
+  };
+
   return (
     <div className="outerContainer">
       <div className="tableContainer">
-        <div style={{ margin: "10px" }}>
-          <h1>{counter}</h1>
-        </div>
+        {isRoom ? null : (
+          <div style={{ margin: "10px" }}>
+            <h1>{counter}</h1>
+          </div>
+        )}
         <PlayersTable players={players} />
         <SockJsClient
           url={SOCKET_URL}
@@ -120,6 +141,16 @@ export default function JoinGame() {
             clientRef = client;
           }}
         />
+        {isRoom ? (
+          <div>
+            <button className={"button mt-20"} onClick={copyLink}>
+              Copy Link
+            </button>
+            <button className={"button mt-20"} onClick={startGame}>
+              Start Game
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

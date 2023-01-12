@@ -1,19 +1,34 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./CreateGame.css";
 
 export default function CreateGame() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [user, setUser] = useState({
-    id: null,
-    name: location.state.name,
-  });
+  const name = location.state.name;
 
   const [options, setOptions] = useState({
     grade: 7,
     difficulty: [],
     subject: null,
+    topics: [
+      "Graphs",
+      "Physics",
+      "Game Theory",
+      "Circle Geometry",
+      "Statistics",
+      "Probability",
+      "Arithmetic",
+      "Combinatorics",
+      "Exponents",
+      "2D Geometry",
+      "3D Geometry",
+      "Logic",
+      "Algebra",
+      "Number Sense",
+      "Fractions",
+    ],
   });
 
   const handleOptionChange = (event) => {
@@ -40,8 +55,15 @@ export default function CreateGame() {
     });
   };
 
-  const handleCreateButtonClick = () => {
-    console.log(`Selected options:`, options);
+  const handleCreateButtonClick = async () => {
+    // console.log(options);
+    navigate("/joinGame", {
+      state: {
+        name,
+        isRoom: true,
+        options,
+      },
+    });
   };
 
   return (
@@ -78,8 +100,8 @@ export default function CreateGame() {
                 type="checkbox"
                 id="easy"
                 name="difficulty"
-                value="easy"
-                checked={options.difficulty.includes("easy")}
+                value="A"
+                checked={options.difficulty.includes("A")}
                 onChange={handleOptionChange}
               />
               <label className="form-check-label" htmlFor="easy">
@@ -92,8 +114,8 @@ export default function CreateGame() {
                 type="checkbox"
                 id="medium"
                 name="difficulty"
-                value="medium"
-                checked={options.difficulty.includes("medium")}
+                value="B"
+                checked={options.difficulty.includes("B")}
                 onChange={handleOptionChange}
               />
               <label className="form-check-label" htmlFor="medium">
@@ -106,8 +128,8 @@ export default function CreateGame() {
                 type="checkbox"
                 id="hard"
                 name="difficulty"
-                value="hard"
-                checked={options.difficulty.includes("hard")}
+                value="C"
+                checked={options.difficulty.includes("C")}
                 onChange={handleOptionChange}
               />
               <label className="form-check-label" htmlFor="hard">
