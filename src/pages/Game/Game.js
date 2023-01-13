@@ -12,6 +12,7 @@ import {
   ROOM_SEND_TOPIC,
   GAME_SEND_DEBUG_TOPIC,
   SOLUTION_SEND_TOPIC,
+  CREATE_GAME_SOLUTION_SEND_TOPIC,
   QUESTION_SET,
   SCORE_RESPONSE,
   QUESTION_TEMPLATE,
@@ -104,10 +105,15 @@ export default function Game() {
       questionId: questions[activeQuestionIdx].id,
       solution: e.target.value,
     };
-    const body = isRoom
-      ? { ...questionSolution, roomId }
-      : { ...questionSolution, sessionId };
-    clientRef.sendMessage(SOLUTION_SEND_TOPIC, JSON.stringify(body));
+    isRoom
+      ? clientRef.sendMessage(
+          CREATE_GAME_SOLUTION_SEND_TOPIC,
+          JSON.stringify({ ...questionSolution, roomId })
+        )
+      : clientRef.sendMessage(
+          SOLUTION_SEND_TOPIC,
+          JSON.stringify({ ...questionSolution, roomId })
+        );
   };
 
   const onDisconnect = () => {};

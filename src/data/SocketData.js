@@ -28,6 +28,7 @@ export const ROOM_SEND_TOPIC = "/app/createGame/getQuestions";
 
 // Solution Send topic
 export const SOLUTION_SEND_TOPIC = "/app/solution";
+export const CREATE_GAME_SOLUTION_SEND_TOPIC = "/app/createGame/solution";
 
 // Socket Receive data types
 export const QUESTION_SET = "QUESTION_SET";
